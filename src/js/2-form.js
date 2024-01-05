@@ -1,5 +1,9 @@
 'use strict';
 
+let formSubmitted = false;
+const storageKey = "feedback-form-state";
+const formSubmittedKey = "form-submitted";
+
 const form = document.querySelector(".feedback-form");
 
 form.addEventListener("input", (event) => {
@@ -11,31 +15,44 @@ form.addEventListener("input", (event) => {
 form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const formData = {
-        email: form.querySelector("[name='email']").value,
-        message: form.querySelector("[name='message']").value
-    };
+     
+    const emailValue = form.querySelector("[name='email']").value;
+    const messageValue = form.querySelector("[name='message']").value;
 
-    console.log(formData);
+    if (emailValue.trim() !== '' && messageValue.trim() !== '') {
+        const formData = {
+            email: emailValue,
+            message: messageValue
+        };
+    
+        console.log(formData);
 
-    localStorage.removeItem("feedback-form-state");
-    form.reset();
+        localStorage.setItem(formSubmittedKey, "true");
+        localStorage.removeItem(storageKey);
+        form.reset();
+        
+    } else {
+        console.log("Будь ласка, заповніть всі поля форми.");
+    }
 });
 
 const saveToLocalStorage = () => {
-        const formData = {
-            email: form.querySelector("[name='email']").value,
-            message: form.querySelector("[name='message']").value
-        };
-        localStorage.setItem("feedback-form-state", JSON.stringify(formData));
+    const formData = {
+        email: form.querySelector("[name='email']").value.trim(),
+        message: form.querySelector("[name='message']").value.trim()
+    };
+    localStorage.setItem(storageKey, JSON.stringify(formData));
 };
 
 const restoreFormLocalStorage = () => {
-        const storedData = localStorage.getItem("feedback-form-state");
-        if (storedData) {
-            const formData = JSON.parse(storedData);
-            form.querySelector("[name='email']").value = formData.email;
-            form.querySelector("[name='message']").value = formData.message;
+    const storedData = localStorage.getItem(storageKey);
+    const formSubmittedIndicator = localStorage.getItem(formSubmittedKey);
+
+    if (storedData && !formSubmittedIndicator) {
+        const formData = JSON.parse(storedData);
+            
+        form.querySelector("[name='email']").value = formData.email;
+        form.querySelector("[name='message']").value = formData.message;
         }
 };
 
