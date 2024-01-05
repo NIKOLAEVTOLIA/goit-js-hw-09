@@ -1,60 +1,37 @@
 'use strict';
 
-let formSubmitted = false;
-const storageKey = "feedback-form-state";
-const formSubmittedKey = "form-submitted";
+const form = document.querySelector('.feedback-form');
+const storageKey = 'feedback-form-state';
 
-const form = document.querySelector(".feedback-form");
+const savedFormData = JSON.parse(localStorage.getItem(storageKey)) || {};
+if (savedFormData.email) {
+  form.elements.email.value = savedFormData.email;
+}
+if (savedFormData.message) {
+  form.elements.message.value = savedFormData.message;
+}
 
-form.addEventListener("input", (event) => {
-    if ((event.target.tagName === "input" || event.target.tagName === "textarea")) {
-        saveToLocalStorage();
-    }
-});
-
-form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-     
-    const emailValue = form.querySelector("[name='email']").value;
-    const messageValue = form.querySelector("[name='message']").value;
-
-    if (emailValue.trim() !== '' && messageValue.trim() !== '') {
-        const formData = {
-            email: emailValue,
-            message: messageValue
-        };
-    
-        console.log(formData);
-
-        localStorage.setItem(formSubmittedKey, "true");
-        localStorage.removeItem(storageKey);
-        form.reset();
-        
-    } else {
-        console.log("Будь ласка, заповніть всі поля форми.");
-    }
-});
-
-const saveToLocalStorage = () => {
+form.addEventListener('input', (event) => {
+  if (event.target.name === 'email' || event.target.name === 'message') {
     const formData = {
-        email: form.querySelector("[name='email']").value.trim(),
-        message: form.querySelector("[name='message']").value.trim()
+      email: form.elements.email.value.trim(),
+      message: form.elements.message.value.trim()
     };
     localStorage.setItem(storageKey, JSON.stringify(formData));
-};
+  }
+});
 
-const restoreFormLocalStorage = () => {
-    const storedData = localStorage.getItem(storageKey);
-    const formSubmittedIndicator = localStorage.getItem(formSubmittedKey);
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
 
-    if (storedData && !formSubmittedIndicator) {
-        const formData = JSON.parse(storedData);
-            
-        form.querySelector("[name='email']").value = formData.email;
-        form.querySelector("[name='message']").value = formData.message;
-        }
-};
+  const email = form.elements.email.value.trim();
+  const message = form.elements.message.value.trim();
 
-restoreFormLocalStorage();
+  if (email && message) {
+    console.log({ email, message });
+
+    localStorage.removeItem(storageKey);
+    form.reset();
+  } 
+});
 
